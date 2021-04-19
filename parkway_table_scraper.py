@@ -33,8 +33,8 @@ class ParkwayTableScraper(TableScraper):
         super().format_table()
         table = list()
         for row in self.table_data:
-          mileposts = list(map(lambda el: el.strip(), row['Parkway Mileposts'].split('-')))
-          row['Starting Milepost'] = min(mileposts)
-          row['Ending Milepost'] = max(mileposts)
+          mileposts = list(map(lambda el: el.strip(), row['parkway_mileposts'].split('-')))
+          row['starting_milepost'] = min(mileposts)
+          row['ending_milepost'] = max(mileposts)
           table.append(row)
         self.table_data =  table

@@ -1,4 +1,6 @@
-from nc_parkway_mapper import NcParkwayMapper
+from nc_parkway_scraper import NcParkwayScraper
 
-pm = NcParkwayMapper()
-pm.process()
+pm = NcParkwayScraper()
+pm.load_table_data()
+
+# print(pm.table_data)

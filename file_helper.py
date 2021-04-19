@@ -1,7 +1,12 @@
 import os
 import json
+from pathlib import Path
 
 class FileHelper():
+
+    def file_exists(path):
+        file = Path(path)
+        return file.is_file()
 
     def load_json_file(path):
         file = open(path, 'r')

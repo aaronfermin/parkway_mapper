@@ -1,23 +1,19 @@
 from parkway_table_scraper import ParkwayTableScraper
 from file_helper import FileHelper
-from pathlib import Path
 from datetime import datetime, timedelta
 from dateutil.parser import parse
 
-class NcParkwayMapper():
+class NcParkwayScraper():
 
     def __init__(self):
         self.table_data = None
         self.last_update = None
-        self.file_path = 'nc_parkway_data.json'
-
-    def process(self):
-        self.load_table_data()
-        print(self.table_data)
+        self.file_path = 'data/'
+        self.file_name = 'nc_parkway_data.json'
 
     def load_table_data(self):
-        file = Path(self.file_path)
-        if file.is_file():
+        path = self.file_path + self.file_name
+        if FileHelper.file_exists(path):
             self.load_data_from_file()
             yesterday = datetime.today() - timedelta(days = 1)
             if self.last_update < yesterday:
@@ -40,18 +36,21 @@ class NcParkwayMapper():
         self.last_update = nc_table_scraper.last_update
 
     def load_data_from_file(self):
-        contents = FileHelper.load_json_file(self.file_path)
+        path = self.file_path + self.file_name
+        contents = FileHelper.load_json_file(path)
         self.table_data = contents['road_data']
         self.last_update = parse(contents['last_update'])
 
     def save_data_to_file(self):
+        path = self.file_path + self.file_name
         data = {
           'last_update': self.last_update,
           'road_data': self.table_data
         }
-        FileHelper.save_json_file(self.file_path, data)
+        FileHelper.save_json_file(path, data)
 
     def move_old_file(self):
+        path = self.file_path + self.file_name
         date = self.last_update.strftime('%Y%m%d')
-        new_path = 'old_data/' + date + '_' + self.file_path
-        FileHelper.move_file(self.file_path, new_path)
+        new_path = 'old_data/' + date + '_' + self.file_name
+        FileHelper.move_file(path, new_path)

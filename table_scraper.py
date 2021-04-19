@@ -21,6 +21,7 @@ class TableScraper(SiteScraper):
     def format_table(self):
         table = list()
         headers = self.table_data.pop(0)
+        headers = list(map(lambda el: el.replace(' ', '_').lower(), headers))
         for row in self.table_data:
           table.append(dict(zip(headers, row)))
         self.table_data = table
