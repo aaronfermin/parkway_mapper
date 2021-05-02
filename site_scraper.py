@@ -14,6 +14,7 @@ class SiteScraper:
         self.get_site_contents()
 
     def scrape_element(self, *args):
+        # TODO: put el_xpath on table_scraper
         xpath = self.el_xpath if not args else args[0]
         return self.tree.xpath(self.root_xpath + xpath)
 

@@ -18,6 +18,7 @@ class ParkwayTableScraper(TableScraper):
         for header in headers:
             if (header.find('Road Status as of') != -1):
                 self.last_update = self.parse_last_update(header)
+                break
 
     def parse_last_update(self, header):
         pieces = header.split('as of')[1].split(' ')

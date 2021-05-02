@@ -9,9 +9,8 @@ class FileHelper():
         return file.is_file()
 
     def load_json_file(path):
-        file = open(path, 'r')
-        contents = json.loads(file.readline())
-        file.close()
+        with open(path) as file:
+            contents = json.loads(file.read())
         return contents
 
     def save_json_file(path, data):
