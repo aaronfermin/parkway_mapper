@@ -1,4 +1,5 @@
 from file_helper import FileHelper
+from datetime import datetime
 import requests
 
 class NcCoordinateMapper:
@@ -8,6 +9,7 @@ class NcCoordinateMapper:
         self.ors_api_key = '5b3ce3597851110001cf62486d7c9cafa72e4b4d848b4145884b2fe1'
         self.mapped_data = None
         self.routes = None
+        self.geojson = None
         self.data_with_routes = None
         self.load_nc_parkway_data()
 
@@ -18,19 +20,22 @@ class NcCoordinateMapper:
 
     def format_geojson(self):
         features = list()
-        geojson = {
-            'type': 'FeatureCollection',
-            'metadata': {
-                'last_update': self.nc_parkway_data['last_update']
-            }
-        }
         for row in self.data_with_routes:
             feature = self.format_geojson_row(row)
             features.append(feature)
-        geojson['features'] = features
+        geojson = {
+            'type': 'FeatureCollection',
+            'metadata': {
+                'last_update': self.nc_parkway_data['last_update'],
+                'last_request': datetime.now().strftime('%Y/%m/%d, %H:%M:%S'),
+                'map_center': {'long': -82.55950927734376, 'lat': 35.570214567965984}
+            },
+            'features': features
+        }
         FileHelper.save_json_file('data/nc_parkway_data.geojson', geojson)
 
     def format_geojson_row(self, row):
+        parkway_row = self.find_parkway_row(row['parkway_mileposts'])
         start_name = row['starting_coordinate']['name']
         end_name = row['starting_coordinate']['name']
         start_description = row['starting_coordinate']['description'] or start_name
@@ -41,7 +46,8 @@ class NcCoordinateMapper:
                 'parkway_mileposts': row['parkway_mileposts'],
                 'name': row['starting_coordinate']['name'] + ' to ' + row['ending_coordinate']['name'],
                 'description': start_description + ' to ' + end_description,
-                'status': row['status'],
+                'status': parkway_row['status'],
+                'notes': parkway_row.get('notes'),
                 'coordinates': {
                     'starting_coordinate': row['starting_coordinate'],
                     'ending_coordinate': row['ending_coordinate']
@@ -63,6 +69,11 @@ class NcCoordinateMapper:
             temp['geometry']['coordinates'] = temp['geometry']['coordinates'][0]
         return temp
 
+    def find_parkway_row(self, mileposts):
+        for row in self.nc_parkway_data['road_data']:
+            if row['parkway_mileposts'] == mileposts:
+                return row
+        return None
 
 # Everything below this is only run once (unless I need to regen directions or regen coordinates)
 

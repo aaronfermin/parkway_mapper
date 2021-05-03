@@ -1,0 +1,11 @@
+#nc_map {
+  height: 90%;
+}
+
+#status {
+  height: 5%;
+  text-align: center;
+  color: #a3a3a3;
+  font-family: Arial, sans-serif;
+  padding: 10px;
+}
