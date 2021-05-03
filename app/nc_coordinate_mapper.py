@@ -9,7 +9,6 @@ class NcCoordinateMapper:
         self.ors_api_key = '5b3ce3597851110001cf62486d7c9cafa72e4b4d848b4145884b2fe1'
         self.mapped_data = None
         self.routes = None
-        self.geojson = None
         self.data_with_routes = None
         self.load_nc_parkway_data()
 
@@ -37,14 +36,14 @@ class NcCoordinateMapper:
     def format_geojson_row(self, row):
         parkway_row = self.find_parkway_row(row['parkway_mileposts'])
         start_name = row['starting_coordinate']['name']
-        end_name = row['starting_coordinate']['name']
+        end_name = row['ending_coordinate']['name']
         start_description = row['starting_coordinate']['description'] or start_name
         end_description = row['ending_coordinate']['description'] or end_name
         temp = {
             'type': 'Feature',
             'properties': {
                 'parkway_mileposts': row['parkway_mileposts'],
-                'name': row['starting_coordinate']['name'] + ' to ' + row['ending_coordinate']['name'],
+                'name': start_name + ' to ' + end_name,
                 'description': start_description + ' to ' + end_description,
                 'status': parkway_row['status'],
                 'notes': parkway_row.get('notes'),
@@ -108,8 +107,7 @@ class NcCoordinateMapper:
             if response.status_code == 200:
                 row['geojson'] = response.json()
             routes.append(row)
-        self.routes = routes
-        self.save_geojson_mapped_data()
+        FileHelper.save_json_file('data/nc_parkway_data_with_routes.json', routes)
 
     def fetch_geojson_route(self, coordinates):
         url = self.ors_base_url + '/v2/directions/driving-car'
@@ -118,10 +116,7 @@ class NcCoordinateMapper:
 
     def format_coordinate(self, coordinate):
         return coordinate['longitude'] + ',' + coordinate['latitude']
-
-    def save_geojson_mapped_data(self):
-        FileHelper.save_json_file('data/nc_parkway_data_with_routes.json', self.routes)
-
+        
     # This function is just to give an empty template of unique mileposts
     # for the coordinate file since I have to visually assign each coordinate
     def generate_empty_json(self):

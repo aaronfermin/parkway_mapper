@@ -46,7 +46,6 @@ class NcParkwayScraper():
     def save_data_to_file(self):
         data = {
           'last_update': self.last_update,
-          'last_request': self.last_request,
           'road_data': self.road_data
         }
         FileHelper.save_json_file(self.path(), data)
