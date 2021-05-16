@@ -12,7 +12,7 @@ class NcMap {
     }).done(function( response ) {
        self.data = JSON.parse(response).data;
        self.render_map();
-       const status = '*Note: Sections of the roadway marked as "ungated" are open except in emergency situations.' +
+       const status = '*Note: Sections of the roadway marked as "<span style="color:lightgreen">ungated</span>" are open except in emergency situations.' +
           '<br/>' + 'Last Updated: ' + self.data.metadata.last_update +
           '<br/>' + 'Last Requested: ' + self.data.metadata.last_request
        $('#status').html(status);
@@ -35,7 +35,7 @@ class NcMap {
   }
 
   render_routes(features){
-    var geojsonMarkerOptions = {
+    const geojson_marker_options = {
       radius: 3,
       fillColor: "#fff",
       color: "#000",
@@ -49,19 +49,26 @@ class NcMap {
           switch (feature.properties.status) {
               case 'Closed': return {color: "red"};
               case 'Open':   return {color: "green"};
-              case 'Ungated*': return {color: "green"};
+              case 'Ungated*': return {color: "lightgreen"};
           }
       },
       pointToLayer: function (feature, latlng) {
-          return L.circleMarker(latlng, geojsonMarkerOptions);
+          return L.circleMarker(latlng, geojson_marker_options);
       },
       onEachFeature: function (feature, layer) {
+          const original_color = layer.options.color
           let info = '<h3>' + feature.properties.name + '</h3>';
+          info += '<div>Milepost ' + feature.properties.parkway_mileposts + '</div>';
           info += '<div><i>' + feature.properties.description + '</i></div>';
-          info += '<div><i>' + feature.properties.parkway_mileposts + '</i></div>';
-          info += '<div>Notes: ' + (feature.properties.notes ? feature.properties.notes : 'None') + '</div>';
+          info += feature.properties.notes ? ('<div>Notes: ' + feature.properties.notes + '</div>') : '';
           info += '<div><b>' + feature.properties.status + '</b></div>';
           layer.bindPopup(info);
+          layer.on('mouseover',function(e){
+              layer.setStyle({color: 'magenta'})
+          });
+          layer.on('mouseout',function(e){
+              layer.setStyle({color: original_color})
+          });
       }
     });
     geojson_features.addTo(this.map);

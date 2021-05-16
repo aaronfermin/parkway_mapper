@@ -8,8 +8,6 @@ class NcCoordinateMapper:
         self.ors_base_url = 'https://api.openrouteservice.org'
         self.ors_api_key = '5b3ce3597851110001cf62486d7c9cafa72e4b4d848b4145884b2fe1'
         self.mapped_data = None
-        self.routes = None
-        self.data_with_routes = None
         self.load_nc_parkway_data()
 
     def load_nc_parkway_data(self):
@@ -116,7 +114,7 @@ class NcCoordinateMapper:
 
     def format_coordinate(self, coordinate):
         return coordinate['longitude'] + ',' + coordinate['latitude']
-        
+
     # This function is just to give an empty template of unique mileposts
     # for the coordinate file since I have to visually assign each coordinate
     def generate_empty_json(self):
