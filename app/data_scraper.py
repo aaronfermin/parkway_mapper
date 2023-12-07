@@ -27,30 +27,31 @@ class DataScraper:
             'road_statuses': self.scrape_table(site_contents),
         }
 
-    def scrape_table(self, site_contents) -> list:
+    def scrape_table(self, site_contents) -> dict:
         """
             - gets the table using @self.table_xpath
             - removes the header row from the table, unneeded as I'm using hardcoded keys
             - converts each row to an array & strips each cell to avoid uggo whitespace
+                - using an iterator for safe access because the rows don't always have the same amount of cells
+                - using the milepost string as the key for easier association in the coordinate mapper
+                - the mileposts could just be a single milepost for access roads, so using min/max instead of an index
             - maps the array to a dict for easier downstream consumption
         """
-        # the first row is headers, don't really need them as I'm using hardcoded keys below
         table = site_contents.xpath(self.root_xpath + self.table_xpath)
         del table[0]
 
-        parsed_table = []
+        table_map = {}
         for row in table:
-            cell = [c.text_content().strip().replace('\n', ' ') for c in row.getchildren()]
+            cell = iter([c.text_content().strip().replace('\n', ' ') for c in row.getchildren()])
+            key = next(cell)
 
-            row_data = {
-                'mileposts': cell[0],
-                'crossroads': cell[1],
-                'status': cell[2],
-                'notes': cell[3],
+            table_map[key] = {
+                'crossroads': next(cell, ''),
+                'status': next(cell, ''),
+                'notes': next(cell, ''),
             }
-            parsed_table.append(row_data)
 
-        return parsed_table
+        return table_map
 
     def get_last_update(self, site_contents) -> str:
         """

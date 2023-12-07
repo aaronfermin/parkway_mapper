@@ -10,9 +10,9 @@ CORS(api)
 
 @api.route('/sync_data', methods=['GET'])
 def sync_data():
-    # fetch road status and save to a file
+    # force fetch road status and save to a file
     syncer = DataSyncer()
-    syncer.sync()
+    syncer.sync(force_update=True)
 
     # load status file, format into geojson for the map to read
     mapper = CoordinateMapper()
@@ -31,9 +31,8 @@ def display_map():
     try:
         sync_data()
     except Exception as e:
-        # TODO: make a template for 'loading?'
-        # maybe some way to render current template with args?
-        print(e)
+        json.dumps({'error': str(e)}), 500, {'ContentType': 'application/json'}
+        raise
     return render_template('nc_map.html')
 
 

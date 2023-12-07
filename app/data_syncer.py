@@ -13,14 +13,14 @@ class DataSyncer:
         self.file_name = 'parkway_data.json'
         self.file_path = '/'.join([self.directory, self.file_name])
 
-    def sync(self) -> None:
+    def sync(self, force_update: bool = False) -> None:
         """
             checks if a data file already exists.
             if the file exists and the date on the file is old, run the scraping process
             if the file exists and the date is current, do nothing to avoid spamming the website
             if the file doesn't exist, run the scraping process
         """
-        if FileHelper.file_exists(self.file_path):
+        if FileHelper.file_exists(self.file_path) and not force_update:
             last_update = self.get_last_update()
             yesterday = datetime.today() - timedelta(days=1)
             if last_update < yesterday:
