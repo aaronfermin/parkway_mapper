@@ -34,6 +34,7 @@ class DataScraper:
             - converts each row to an array & strips each cell to avoid uggo whitespace
                 - using an iterator for safe access because the rows don't always have the same amount of cells
                 - using the milepost string as the key for easier association in the coordinate mapper
+                    - have to strip strings as the table has shitty whitespace consistency (ex: 12.3- 45.6)
                 - the mileposts could just be a single milepost for access roads, so using min/max instead of an index
             - maps the array to a dict for easier downstream consumption
         """
@@ -43,7 +44,7 @@ class DataScraper:
         table_map = {}
         for row in table:
             cell = iter([c.text_content().strip().replace('\n', ' ') for c in row.getchildren()])
-            key = next(cell)
+            key = next(cell).replace(' ', '')
 
             table_map[key] = {
                 'crossroads': next(cell, ''),
@@ -73,4 +74,4 @@ class DataScraper:
         pieces = [x.strip(',.') for x in as_of.split(' ') if x not in ['', 'at']]
         last_update = ' '.join(pieces)
         update_date = parse(last_update)
-        return update_date.isoformat()
+        return update_date.strftime('%Y/%m/%d')

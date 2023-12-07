@@ -9,10 +9,10 @@ CORS(api)
 
 
 @api.route('/sync_data', methods=['GET'])
-def sync_data():
-    # force fetch road status and save to a file
+def sync_data(force_update: bool = True):
+    # fetch road status and save to a file
     syncer = DataSyncer()
-    syncer.sync(force_update=True)
+    syncer.sync(force_update)
 
     # load status file, format into geojson for the map to read
     mapper = CoordinateMapper()
@@ -22,14 +22,15 @@ def sync_data():
 
 @api.route('/fetch_geojson', methods=['GET'])
 def fetch_geojson():
-    data = FileHelper.load_json_file('data/nc_parkway_data.geojson')
+    data = FileHelper.load_json_file('data/map_data.geojson')
     return json.dumps({'data': data}), 200, {'ContentType': 'application/json'}
 
 
 @api.route('/', methods=['GET'])
 def display_map():
     try:
-        sync_data()
+        # don't force sync on regular pageload
+        sync_data(force_update=False)
     except Exception as e:
         json.dumps({'error': str(e)}), 500, {'ContentType': 'application/json'}
         raise

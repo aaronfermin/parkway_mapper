@@ -1,6 +1,5 @@
 class NcMap {
   constructor() {
-      this.data = null;
       this.map = null;
   }
 
@@ -8,19 +7,18 @@ class NcMap {
     const self = this;
     $.ajax({
       type: 'GET',
-      url: 'http://localhost:5000/nc_geojson',
+      url: 'http://localhost:5000/fetch_geojson',
     }).done(function( response ) {
-       self.data = JSON.parse(response).data;
-       self.render_map();
+       const data = JSON.parse(response).data;
+       self.render_map(data);
        const status = '*Note: Sections of the roadway marked as "<span style="color:lightgreen">ungated</span>" are open except in emergency situations.' +
-          '<br/>' + 'Last Updated: ' + self.data.metadata.last_update +
-          '<br/>' + 'Last Requested: ' + self.data.metadata.last_request
+          '<br/>' + 'Last Updated: ' + data.metadata.last_update +
+          '<br/>' + 'Source: <a href="https://www.nps.gov/blri/planyourvisit/roadclosures.htm">https://www.nps.gov/blri/planyourvisit/roadclosures.htm</a>'
        $('#status').html(status);
     });
   }
 
-  render_map(){
-    const data = this.data;
+  render_map(data){
     const map_center = [data.metadata.map_center.lat, data.metadata.map_center.long]
     this.map = L.map('nc_map').setView(map_center, 10);
     L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
@@ -29,7 +27,7 @@ class NcMap {
         id: 'mapbox/streets-v11',
         tileSize: 512,
         zoomOffset: -1,
-        accessToken: 'pk.eyJ1IjoiYWxtaW8iLCJhIjoiY2tvN3ZoYTh4MWJsbDJvb24yc2Fjb3NtbSJ9.QvMoJHlwi5-r6FmgMPLQgA'
+        accessToken: ''
     }).addTo(this.map);
     this.render_routes(data.features);
   }
@@ -44,7 +42,7 @@ class NcMap {
       fillOpacity: 0.1
     };
 
-    let geojson_features = L.geoJSON(features, {
+    const geojson_features = L.geoJSON(features, {
       style: function(feature) {
           switch (feature.properties.status) {
               case 'Closed': return {color: 'red'};
@@ -76,6 +74,5 @@ class NcMap {
   }
 }
 
-// TODO: add loading while waiting on render
-let nc_map = new NcMap()
+const nc_map = new NcMap()
 nc_map.fetch_data_and_render_map()

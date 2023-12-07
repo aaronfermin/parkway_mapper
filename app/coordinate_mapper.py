@@ -18,7 +18,6 @@ class CoordinateMapper:
             'type': 'FeatureCollection',
             'metadata': {
                 'last_update': self.data['last_update'],
-                'last_request': datetime.now().strftime('%Y/%m/%d, %H:%M:%S'),
                 'map_center': {'long': -82.55950927734376, 'lat': 35.570214567965984}
             },
             'features': features
@@ -28,7 +27,11 @@ class CoordinateMapper:
     def format_geojson_row(self, row):
         """creates a geojson feature containing the section information & 'route' to be displayed on the map"""
 
-        data_row = self.data['road_statuses'].get(row['parkway_mileposts'], {})
+        mileposts_key = row['parkway_mileposts'].replace(' ', '')
+        data_row = self.data['road_statuses'].get(mileposts_key, {})
+
+        # "closed" statuses now have a bunch of other words in the cell, keep it simple
+        status = data_row.get('status', 'Error retrieving status')
         start_name = row['starting_coordinate']['name']
         end_name = row['ending_coordinate']['name']
         start_description = row['starting_coordinate']['description'] or start_name
@@ -40,7 +43,7 @@ class CoordinateMapper:
                 'parkway_mileposts': row['parkway_mileposts'],
                 'name': start_name + ' to ' + end_name,
                 'description': start_description + ' to ' + end_description,
-                'status': data_row.get('status', 'ERR'),
+                'status': 'Closed' if 'closed' in status.lower() else status,
                 'notes': data_row.get('notes', ''),
                 'coordinates': {
                     'starting_coordinate': row['starting_coordinate'],
