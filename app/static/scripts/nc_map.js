@@ -39,8 +39,6 @@ class NcMap {
             if (layer instanceof L.Path) { // only manipulate Path objects
                 // if it's a point, it needs to be biggererer
                 const weight = Object.keys(layer.options).includes('radius') ? base_weight * 3 : base_weight;
-                console.log(current_zoom);
-                console.log(weight);
                 layer.setStyle({weight});
             }
         });
