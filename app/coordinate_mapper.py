@@ -1,6 +1,9 @@
-from file_helper import FileHelper
 from datetime import datetime
+
 import requests
+
+from file_helper import FileHelper
+
 
 class CoordinateMapper:
 
@@ -35,6 +38,8 @@ class CoordinateMapper:
         FileHelper.save_json_file('data/nc_parkway_data.geojson', geojson)
 
     def format_geojson_row(self, row):
+        # TODO: determine starting/ ending milepost here as it makes more sense than in the scraper
+        mileposts = [milepost.strip() for milepost in cell[0].split('-')]
         parkway_row = self.find_parkway_row(row['parkway_mileposts'])
         start_name = row['starting_coordinate']['name']
         end_name = row['ending_coordinate']['name']
@@ -75,7 +80,7 @@ class CoordinateMapper:
                 return row
         return None
 
-# Everything below this is only run once (unless I need to regen directions or regen coordinates)
+    # Everything below this is only run once (unless I need to regen directions or regen coordinates)
 
     # This function
     # 1. assigns a lat & long coordinate to each milepost in nc_parkway_data

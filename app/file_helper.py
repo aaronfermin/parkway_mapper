@@ -1,6 +1,7 @@
-import os
 import json
+import os
 from pathlib import Path
+
 
 class FileHelper:
 
@@ -22,4 +23,5 @@ class FileHelper:
 
     @staticmethod
     def move_file(from_path, to_path):
+        # this is pretty extra to have in its own method, but just to avoid importing os in another file for 1 line
         os.rename(from_path, to_path)
