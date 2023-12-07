@@ -7,8 +7,8 @@ class NcMap {
   fetch_data_and_render_map(){
     const self = this;
     $.ajax({
-      type: "GET",
-      url: "http://localhost:5000/nc_geojson",
+      type: 'GET',
+      url: 'http://localhost:5000/nc_geojson',
     }).done(function( response ) {
        self.data = JSON.parse(response).data;
        self.render_map();
@@ -37,8 +37,8 @@ class NcMap {
   render_routes(features){
     const geojson_marker_options = {
       radius: 3,
-      fillColor: "#fff",
-      color: "#000",
+      fillColor: '#fff',
+      color: '#000',
       weight: 10,
       opacity: 0.8,
       fillOpacity: 0.1
@@ -47,9 +47,9 @@ class NcMap {
     let geojson_features = L.geoJSON(features, {
       style: function(feature) {
           switch (feature.properties.status) {
-              case 'Closed': return {color: "red"};
-              case 'Open':   return {color: "green"};
-              case 'Ungated*': return {color: "lightgreen"};
+              case 'Closed': return {color: 'red'};
+              case 'Open':   return {color: 'green'};
+              case 'Ungated*': return {color: 'lightgreen'};
           }
       },
       pointToLayer: function (feature, latlng) {
@@ -63,6 +63,7 @@ class NcMap {
           info += feature.properties.notes ? ('<div>Notes: ' + feature.properties.notes + '</div>') : '';
           info += '<div><b>' + feature.properties.status + '</b></div>';
           layer.bindPopup(info);
+          // TODO: increase mouseover area?
           layer.on('mouseover',function(e){
               layer.setStyle({color: 'magenta'})
           });
@@ -75,5 +76,6 @@ class NcMap {
   }
 }
 
+// TODO: add loading while waiting on render
 let nc_map = new NcMap()
 nc_map.fetch_data_and_render_map()

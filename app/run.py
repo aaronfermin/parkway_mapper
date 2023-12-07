@@ -1,12 +1,12 @@
-from nc_parkway_scraper import NcParkwayScraper
-from nc_coordinate_mapper import NcCoordinateMapper
+from data_syncer import DataSyncer
+from coordinate_mapper import CoordinateMapper
 
-# refresh road status
-ps = NcParkwayScraper()
-ps.load_table_data()
+# fetch road status and save to a file
+syncer = DataSyncer()
+syncer.sync()
 
-# convert statuses into geojson
-cm = NcCoordinateMapper()
-cm.format_geojson()
+print(syncer.road_statuses)
 
-# print(pm.table_data)
+# load status file, format into geojson for the map to read
+# cm = CoordinateMapper()
+# cm.run()

@@ -1,0 +1,4 @@
+venv/*
+*.pyc
+.idea/*
+app/__pycache__/*

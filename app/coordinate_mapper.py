@@ -2,13 +2,16 @@ from file_helper import FileHelper
 from datetime import datetime
 import requests
 
-class NcCoordinateMapper:
+class CoordinateMapper:
 
     def __init__(self):
         self.ors_base_url = 'https://api.openrouteservice.org'
         self.ors_api_key = '5b3ce3597851110001cf62486d7c9cafa72e4b4d848b4145884b2fe1'
         self.mapped_data = None
         self.load_nc_parkway_data()
+
+    def map_coordinates(self):
+        pass
 
     def load_nc_parkway_data(self):
         self.nc_parkway_data = FileHelper.load_json_file('data/nc_parkway_data.json')

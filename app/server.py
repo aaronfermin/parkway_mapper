@@ -1,33 +1,41 @@
 from flask import Flask, json, render_template
 from flask_cors import CORS
-from nc_parkway_scraper import NcParkwayScraper
-from nc_coordinate_mapper import NcCoordinateMapper
+from data_syncer import DataSyncer
+from coordinate_mapper import CoordinateMapper
 from file_helper import FileHelper
 
 api = Flask(__name__)
 CORS(api)
 
-@api.route('/sync_nc', methods=['GET'])
-def sync_nc_parkway_data():
-    # refresh road status
-    ps = NcParkwayScraper()
-    ps.load_table_data()
 
-    # convert statuses into geojson
-    cm = NcCoordinateMapper()
-    cm.format_geojson()
-    return json.dumps({'success':True}), 200, {'ContentType':'application/json'}
+@api.route('/sync_data', methods=['GET'])
+def sync_data():
+    # fetch road status and save to a file
+    syncer = DataSyncer()
+    syncer.sync()
 
-@api.route('/nc_geojson', methods=['GET'])
-def fetch_nc_geojson():
-    # refresh road status
+    # load status file, format into geojson for the map to read
+    mapper = CoordinateMapper()
+    mapper.map_coordinates()
+    return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
+
+
+@api.route('/fetch_geojson', methods=['GET'])
+def fetch_geojson():
     data = FileHelper.load_json_file('data/nc_parkway_data.geojson')
-    return json.dumps({'data':data}), 200, {'ContentType':'application/json'}
+    return json.dumps({'data': data}), 200, {'ContentType': 'application/json'}
 
-@api.route('/nc_map', methods=['GET'])
-def display_nc_map():
-    sync_nc_parkway_data()
-    return render_template("nc_map.html")
+
+@api.route('/', methods=['GET'])
+def display_map():
+    try:
+        sync_data()
+    except Exception as e:
+        # TODO: make a template for 'loading?'
+        # maybe some way to render current template with args?
+        print(e)
+    return render_template('nc_map.html')
+
 
 if __name__ == '__main__':
     api.run()
