@@ -8,4 +8,4 @@ trying to make a map of parkway road closures
 
 `python server.py`
 
-`localhost:5000/nc_map`
+`localhost:5000`

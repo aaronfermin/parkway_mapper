@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from file_helper import FileHelper
 
 
@@ -10,7 +8,7 @@ class CoordinateMapper:
         self.coordinates = FileHelper.load_json_file('data/static/milepost_coordinates.json')
         self.routes = FileHelper.load_json_file('data/static/routes.json')
 
-    def map_coordinates(self):
+    def map_coordinates(self) -> None:
         """takes the parkway table data and applies it to the stored route data to create geojson map data features"""
         features = [self.format_geojson_row(row) for row in self.routes]
 
@@ -24,7 +22,7 @@ class CoordinateMapper:
         }
         FileHelper.save_json_file('data/map_data.geojson', geojson)
 
-    def format_geojson_row(self, row):
+    def format_geojson_row(self, row: dict) -> dict:
         """creates a geojson feature containing the section information & 'route' to be displayed on the map"""
 
         mileposts_key = row['parkway_mileposts'].replace(' ', '')

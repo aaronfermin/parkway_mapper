@@ -7,8 +7,8 @@ class NcMap {
     const self = this;
     $.ajax({
       type: 'GET',
-      url: 'http://localhost:5000/fetch_geojson',
-    }).done(function( response ) {
+      url: 'http://localhost:5000/fetch_geojson', // have to change to the server URL once hosted (don't forget HTTPS)
+    }).done(( response ) => {
        const data = JSON.parse(response).data;
        self.render_map(data);
        const status = '*Note: Sections of the roadway marked as "<span style="color:lightgreen">ungated</span>" are open except in emergency situations.' +
@@ -27,9 +27,24 @@ class NcMap {
         id: 'mapbox/streets-v11',
         tileSize: 512,
         zoomOffset: -1,
-        accessToken: ''
+        accessToken: '',  // populate with API key
     }).addTo(this.map);
     this.render_routes(data.features);
+
+    // add dynamic line thickness by zoom level
+    this.map.on('zoomend', () => {
+        const current_zoom = this.map.getZoom();
+        const base_weight = current_zoom > 10 ? (current_zoom / 1.5) : 3;  //arbitrary values based on my eyeballs
+        this.map.eachLayer( (layer) => {
+            if (layer instanceof L.Path) { // only manipulate Path objects
+                // if it's a point, it needs to be biggererer
+                const weight = Object.keys(layer.options).includes('radius') ? base_weight * 3 : base_weight;
+                console.log(current_zoom);
+                console.log(weight);
+                layer.setStyle({weight});
+            }
+        });
+    });
   }
 
   render_routes(features){
@@ -37,23 +52,24 @@ class NcMap {
       radius: 3,
       fillColor: '#fff',
       color: '#000',
-      weight: 10,
+      weight: 9,
       opacity: 0.8,
       fillOpacity: 0.1
     };
 
     const geojson_features = L.geoJSON(features, {
-      style: function(feature) {
+      style: (feature) => {
           switch (feature.properties.status) {
               case 'Closed': return {color: 'red'};
               case 'Open':   return {color: 'green'};
               case 'Ungated*': return {color: 'lightgreen'};
+              // will default to blue if different status
           }
       },
-      pointToLayer: function (feature, latlng) {
+      pointToLayer: (feature, latlng) => {
           return L.circleMarker(latlng, geojson_marker_options);
       },
-      onEachFeature: function (feature, layer) {
+      onEachFeature: (feature, layer) => {
           const original_color = layer.options.color
           let info = '<h3>' + feature.properties.name + '</h3>';
           info += '<div>Milepost ' + feature.properties.parkway_mileposts + '</div>';
@@ -61,13 +77,8 @@ class NcMap {
           info += feature.properties.notes ? ('<div>Notes: ' + feature.properties.notes + '</div>') : '';
           info += '<div><b>' + feature.properties.status + '</b></div>';
           layer.bindPopup(info);
-          // TODO: increase mouseover area?
-          layer.on('mouseover',function(e){
-              layer.setStyle({color: 'magenta'})
-          });
-          layer.on('mouseout',function(e){
-              layer.setStyle({color: original_color})
-          });
+          layer.on('mouseover', (e) => layer.setStyle({color: 'magenta'}));
+          layer.on('mouseout', (e) => layer.setStyle({color: original_color}));
       }
     });
     geojson_features.addTo(this.map);

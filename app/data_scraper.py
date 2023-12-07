@@ -35,7 +35,6 @@ class DataScraper:
                 - using an iterator for safe access because the rows don't always have the same amount of cells
                 - using the milepost string as the key for easier association in the coordinate mapper
                     - have to strip strings as the table has shitty whitespace consistency (ex: 12.3- 45.6)
-                - the mileposts could just be a single milepost for access roads, so using min/max instead of an index
             - maps the array to a dict for easier downstream consumption
         """
         table = site_contents.xpath(self.root_xpath + self.table_xpath)
@@ -60,6 +59,7 @@ class DataScraper:
             - strip out all the non-date-y characters & whitespaces from the string
             - convert the date string (ex: "11:00 a.m., Thursday, December 7th, 2023.") to a date obj
             - return a formatted str representing the last time the site's data was updated
+            - ignoring time cause I don't want to fuck with timezones disparity between UTC server & EST timestamp
         """
 
         def find_as_of_header():
